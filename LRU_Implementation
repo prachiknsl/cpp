@@ -1,0 +1,97 @@
+#include<bits/stdc++.h>
+using namespace std;
+
+class DLLNode{
+public:
+    int key;
+    int value;
+    DLLNode* next;
+    DLLNode* prev;
+    DLLNode(int key, int value){
+        this->key = key;
+        this->value = value;
+        this->prev = NULL;
+        this->next = NULL;
+    }
+};
+
+unordered_map<int, DLLNode*> cache;
+int size;
+int capacity=0;
+DLLNode* head = new DLLNode(-1,-1);
+DLLNode* tail = new DLLNode(-1,-1);
+
+void addNodeAtHead(DLLNode* node){
+    node->prev = head;
+    node->next = head->next;
+    head->next->prev = node;
+    head->next = node;
+    return;
+}
+void removeNode(DLLNode* node){
+    node->prev->next = node->next;
+    node->next->prev = node->prev;
+}
+int removeNodeFromTail(){
+    DLLNode* temp = tail->prev;
+    removeNode(temp);
+    return temp->key;
+}
+void moveToHead(DLLNode* node)
+{
+    std::cout <<"moveToHead "<< node->key;
+    addNodeAtHead(node);
+    removeNode(node);
+}
+int getValue(int k){
+    if(cache.count(k) == 0){
+        cout<<"Value is not present for key "<<k<<" ";
+        return -1;
+    }
+    DLLNode* node = cache[k];
+    moveToHead(node);
+    return node->value;
+}
+void put(int k, int v){
+    if(cache.count(k)==0){
+        DLLNode* node = new DLLNode(k,v);
+        cache[k] = node;
+        addNodeAtHead(node);
+        capacity++;
+        if(capacity>size){
+            int removedKey = removeNodeFromTail();
+            cache.erase(removedKey);
+            cout<<"Cache is full, removed a key "<<removedKey<<endl;
+            capacity--;
+        }else{
+            cout<<"Value is added for key "<<k<<endl;
+        }
+    }
+    else{
+        DLLNode* node = cache[k];
+        cout<<"Already Present "<<k<<endl;
+        moveToHead(node);
+    }
+}
+int main() {
+	// your code goes here
+	cin>>size;
+	head->next=tail;
+	tail->prev=head;
+	int q;
+	cin>>q;
+	while(q--){
+	    char ch;
+	    int k,v;
+	    cin>>ch;
+	    if(ch == 'p'){
+	        cin>>k>>v;
+	        put(k,v);
+	    }else{
+	        cin>>k;
+	        int v = getValue(k);
+	        cout<<"Value is "<<v<<endl;
+	    }
+	}
+	return 0;
+}
